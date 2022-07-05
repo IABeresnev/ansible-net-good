@@ -1,6 +1,15 @@
 ---
-elasticsearch:
+clickhouse:
   hosts:
-    localhost:
-      ansible_connection: ssh
-      ansible_user: root
+    clickhouse-01:
+      ansible_host: 127.0.0.1
+      ansible_port: 2222
+      ansible_ssh_user: vagrant
+      ansible_ssh_private_key_file: /home/yolo/PycharmProjects/addrepos/vagrant/.vagrant/machines/clickhouse/virtualbox/private_key
+vector:
+  hosts:
+    vector-01:
+      ansible_host: 127.0.0.1
+      ansible_port: 2200
+      ansible_ssh_user: vagrant
+      ansible_ssh_private_key_file: /home/yolo/PycharmProjects/addrepos/vagrant/.vagrant/machines/vector/virtualbox/private_key

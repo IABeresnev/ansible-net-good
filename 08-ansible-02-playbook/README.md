@@ -1,31 +1,66 @@
-# Домашнее задание к занятию "08.02 Работа с Playbook"
+# Ответы на домашнее задание к занятию "08.02 Работа с Playbook"
 
 ## Подготовка к выполнению
-1. Создайте свой собственный (или используйте старый) публичный репозиторий на github с произвольным именем.
-2. Скачайте [playbook](./playbook/) из репозитория с домашним заданием и перенесите его в свой репозиторий.
-3. Подготовьте хосты в соотвтествии с группами из предподготовленного playbook. 
-4. Скачайте дистрибутив [java](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html) и положите его в директорию `playbook/files/`. 
 
+1. (Необязательно) Изучите, что такое [clickhouse](https://www.youtube.com/watch?v=fjTNS2zkeBs) и [vector](https://www.youtube.com/watch?v=CgEhyffisLY)
+2. Создайте свой собственный (или используйте старый) публичный репозиторий на github с произвольным именем.
+3. Скачайте [playbook](./playbook/) из репозитория с домашним заданием и перенесите его в свой репозиторий.
+4. Подготовьте хосты в соответствии с группами из предподготовленного playbook.
+
+Ответ: Подготовку выполнил, для реализации использовал виртуальные машины создаваемые через Vagrant.  
 ## Основная часть
+
 1. Приготовьте свой собственный inventory файл `prod.yml`.
-2. Допишите playbook: нужно сделать ещё один play, который устанавливает и настраивает kibana.
+Ответ: Выполнено.
+```
+---
+clickhouse:
+  hosts:
+    clickhouse-01:
+      ansible_host: 127.0.0.1
+      ansible_port: 2222
+      ansible_ssh_user: vagrant
+      ansible_ssh_private_key_file: /home/yolo/PycharmProjects/addrepos/vagrant/.vagrant/machines/clickhouse/virtualbox/private_key
+vector:
+  hosts:
+    vector-01:
+      ansible_host: 127.0.0.1
+      ansible_port: 2200
+      ansible_ssh_user: vagrant
+      ansible_ssh_private_key_file: /home/yolo/PycharmProjects/addrepos/vagrant/.vagrant/machines/vector/virtualbox/private_key
+```
+2. Допишите playbook: нужно сделать ещё один play, который устанавливает и настраивает [vector](https://vector.dev).
+Ответ: Выполено.
+```
+- name: Install Vector
+  hosts: vector
+  handlers:
+    - name: Start vector service
+      become: true
+      ansible.builtin.service:
+        name: vector
+        state: started
+  tasks:
+    - block:
+        - name: Get vector distrib
+          ansible.builtin.get_url:
+            url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_full_version }}.x86_64.rpm"
+            dest: "./vector-{{ vector_full_version }}.x86_64.rpm"
+    - name: Install vector packages
+      become: true
+      ansible.builtin.yum:
+        name:
+          - vector-{{ vector_full_version }}.x86_64.rpm
+      notify: Start vector service
+```
 3. При создании tasks рекомендую использовать модули: `get_url`, `template`, `unarchive`, `file`.
-4. Tasks должны: скачать нужной версии дистрибутив, выполнить распаковку в выбранную директорию, сгенерировать конфигурацию с параметрами.
+4. Tasks должны: скачать нужной версии дистрибутив, выполнить распаковку в выбранную директорию, установить vector.
 5. Запустите `ansible-lint site.yml` и исправьте ошибки, если они есть.
 6. Попробуйте запустить playbook на этом окружении с флагом `--check`.
 7. Запустите playbook на `prod.yml` окружении с флагом `--diff`. Убедитесь, что изменения на системе произведены.
 8. Повторно запустите playbook с флагом `--diff` и убедитесь, что playbook идемпотентен.
 9. Подготовьте README.md файл по своему playbook. В нём должно быть описано: что делает playbook, какие у него есть параметры и теги.
-10. Готовый playbook выложите в свой репозиторий, в ответ предоставьте ссылку на него.
-
-## Необязательная часть
-
-1. Приготовьте дополнительный хост для установки logstash.
-2. Пропишите данный хост в `prod.yml` в новую группу `logstash`.
-3. Дополните playbook ещё одним play, который будет исполнять установку logstash только на выделенный для него хост.
-4. Все переменные для нового play определите в отдельный файл `group_vars/logstash/vars.yml`.
-5. Logstash конфиг должен конфигурироваться в части ссылки на elasticsearch (можно взять, например его IP из facts или определить через vars).
-6. Дополните README.md, протестируйте playbook, выложите новую версию в github. В ответ предоставьте ссылку на репозиторий.
+10. Готовый playbook выложите в свой репозиторий, поставьте тег `08-ansible-02-playbook` на фиксирующий коммит, в ответ предоставьте ссылку на него.
 
 ---
 
