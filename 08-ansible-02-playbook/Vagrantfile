@@ -1,0 +1,16 @@
+
+Vagrant.configure("2") do |config|
+
+  config.vm. define "clickhouse" do |clickhouse|
+    clickhouse.vm.box = "bento/centos-7"
+    clickhouse.vm.hostname = "clickhouse-01"
+    clickhouse.vm.network "public_network", bridge: "enp1s0"
+  end
+
+  config.vm. define "vector" do |vector|
+    vector.vm.box = "bento/centos-7"
+    vector.vm.hostname = "vector-01"    
+    vector.vm.network "public_network", bridge: "enp1s0"
+  end
+
+end

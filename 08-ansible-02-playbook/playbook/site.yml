@@ -15,12 +15,14 @@
           ansible.builtin.get_url:
             url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
             dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
+            mode: 0744
           with_items: "{{ clickhouse_packages }}"
       rescue:
         - name: Get clickhouse distrib
           ansible.builtin.get_url:
             url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
             dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
+            mode: 0744
     - name: Install clickhouse packages
       become: true
       ansible.builtin.yum:
@@ -53,11 +55,13 @@
         name: vector
         state: restarted
   tasks:
-    - block:
+    - name: Install vector service
+      block:
         - name: Get vector distrib
           ansible.builtin.get_url:
             url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_full_version }}.x86_64.rpm"
             dest: "./vector-{{ vector_full_version }}.x86_64.rpm"
+            mode: 0744
     - name: Install vector packages
       become: true
       ansible.builtin.yum:
@@ -68,4 +72,5 @@
       ansible.builtin.copy:
         src: templates/vector.toml
         dest: /etc/vector/vector.toml
+        mode: 0644
       notify: reStart vector service

@@ -30,37 +30,56 @@ vector:
       ansible_ssh_private_key_file: /home/yolo/PycharmProjects/addrepos/vagrant/.vagrant/machines/vector/virtualbox/private_key
 ```
 2. Допишите playbook: нужно сделать ещё один play, который устанавливает и настраивает [vector](https://vector.dev).
-Ответ: Выполено.
+Ответ: Выполнено.
 ```
 - name: Install Vector
   hosts: vector
   handlers:
-    - name: Start vector service
+    - name: reStart vector service
       become: true
       ansible.builtin.service:
         name: vector
-        state: started
+        state: restarted
   tasks:
-    - block:
+    - name: Install vector service
+      block:
         - name: Get vector distrib
           ansible.builtin.get_url:
             url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_full_version }}.x86_64.rpm"
             dest: "./vector-{{ vector_full_version }}.x86_64.rpm"
+            mode: 0744
     - name: Install vector packages
       become: true
       ansible.builtin.yum:
         name:
           - vector-{{ vector_full_version }}.x86_64.rpm
-      notify: Start vector service
+    - name: Copy vector config file
+      become: true
+      ansible.builtin.copy:
+        src: templates/vector.toml
+        dest: /etc/vector/vector.toml
+        mode: 0644
+      notify: reStart vector service
 ```
 3. При создании tasks рекомендую использовать модули: `get_url`, `template`, `unarchive`, `file`.
 4. Tasks должны: скачать нужной версии дистрибутив, выполнить распаковку в выбранную директорию, установить vector.
 5. Запустите `ansible-lint site.yml` и исправьте ошибки, если они есть.
-6. Попробуйте запустить playbook на этом окружении с флагом `--check`.
-7. Запустите playbook на `prod.yml` окружении с флагом `--diff`. Убедитесь, что изменения на системе произведены.
-8. Повторно запустите playbook с флагом `--diff` и убедитесь, что playbook идемпотентен.
-9. Подготовьте README.md файл по своему playbook. В нём должно быть описано: что делает playbook, какие у него есть параметры и теги.
-10. Готовый playbook выложите в свой репозиторий, поставьте тег `08-ansible-02-playbook` на фиксирующий коммит, в ответ предоставьте ссылку на него.
+Ответ: Линтер указал на ошибки об отсутвии прав на скаченные файлы и на отсутвие наименования некоторых элементов.  
+Все исправил, сейчас проверка проходит без ошибок.  
+6. Попробуйте запустить playbook на этом окружении с флагом `--check`.  
+Ответ: Упал в ошибку на шаге установки пакетов Clickhouse т.к. не нашел их в системе.  
+![task6](images/ansible--check.png)  
+7. Запустите playbook на `prod.yml` окружении с флагом `--diff`. Убедитесь, что изменения на системе произведены.  
+Ответ: Все выполнилось корректно без ошибок, продемонстрированы в консоле изменения в конф. файлах.  
+![task7](images/task7.png)  
+8. Повторно запустите playbook с флагом `--diff` и убедитесь, что playbook идемпотентен.  
+Ответ: Повторно запустил, результат не изменился, все внесененные изменения подтвердились.  
+![task8](images/task8.png)    
+Дополнительно проверим что все работает.
+![task81](images/vectorCheckLogFile.png)  
+9. Подготовьте README.md файл по своему playbook. В нём должно быть описано: что делает playbook, какие у него есть параметры и теги.  
+Ответ: Файл подготовлен. [Ознакомиться](playbook/README.md).  
+10. Готовый playbook выложите в свой репозиторий, поставьте тег `08-ansible-02-playbook` на фиксирующий коммит, в ответ предоставьте ссылку на него.  
 
 ---
 
