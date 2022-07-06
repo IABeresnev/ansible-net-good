@@ -79,7 +79,8 @@ vector:
 ![task81](images/vectorCheckLogFile.png)  
 9. Подготовьте README.md файл по своему playbook. В нём должно быть описано: что делает playbook, какие у него есть параметры и теги.  
 Ответ: Файл подготовлен. [Ознакомиться](playbook/README.md).  
-10. Готовый playbook выложите в свой репозиторий, поставьте тег `08-ansible-02-playbook` на фиксирующий коммит, в ответ предоставьте ссылку на него.  
+10. Готовый playbook выложите в свой репозиторий, поставьте тег `08-ansible-02-playbook` на фиксирующий коммит, в ответ предоставьте ссылку на него.
+Ответ: Ссылка на фиксирующий коммит с тегом https://github.com/IABeresnev/ansible-net-good/releases/tag/08-ansible-02-playbook  
 
 ---
 
